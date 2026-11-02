@@ -1,6 +1,6 @@
-# Azeroth Survivors Save Editor v1.5.5
+# Azeroth Survivors Save Editor v1.5.6
 
-**[Open the editor](https://yssadora.github.io/azeroth-survivors-editor/)** · [Source code](https://github.com/yssadora/azeroth-survivors-editor)
+**[Open Editor](https://itzcrutchie.github.io/azeroth-survivors-editor/)** · **[Source Code](https://github.com/iTzCrutchie/azeroth-survivors-editor)**
 
 A free, unofficial browser-based save editor for **Azeroth Survivors**. Import a `.sav` file, edit your save, and download a modified `.sav` file. Processing happens locally in your browser.
 
@@ -62,5 +62,7 @@ The editor validates what it writes; it cannot guarantee the game will persist t
 **Original Talent Editor:** Unknown community creator — credit to the original author.
 
 **Armory, Zone Manager, integrations, and UI extensions:** Shilen.
+
+**[yssadora's Source Code](https://github.com/yssadora/azeroth-survivors-editor) - This is the original editor that I worked off of.**
 
 This is an unofficial community tool and is not affiliated with the game's developers.
