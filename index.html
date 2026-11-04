@@ -1035,7 +1035,7 @@ const backupMini=document.createElement('button');backupMini.type='button';backu
 backupMini.addEventListener('click',()=>backupBtn.click());originalExportArea?.append(backupMini);
 
 const zoneOverview=document.createElement('div');zoneOverview.id='as15-zone-overview';
-zoneOverview.innerHTML=`<div><strong id="as15-zone-n">0 / 12</strong><br><small>ZONES CLEARED</small></div><div class="as15-zone-track"><div class="as15-progress-track" role="progressbar" aria-label="Zones cleared" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" id="as15-zone-track"><span id="as15-zone-fill" class="as15-progress-fill"></span></div></div>`;
+zoneOverview.innerHTML=`<div><strong id="as15-zone-n">0 / 13</strong><br><small>ZONES CLEARED</small></div><div class="as15-zone-track"><div class="as15-progress-track" role="progressbar" aria-label="Zones cleared" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" id="as15-zone-track"><span id="as15-zone-fill" class="as15-progress-fill"></span></div></div>`;
 $('zm-grid').before(zoneOverview);
 
 // High-risk bulk action: lightweight confirmation; never silently change 498 IDs.
