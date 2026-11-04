@@ -148,7 +148,7 @@ function P(_0x2f5ea5,_0x3df7ec){const _0x3ef45e=_0x17f9ca,_0x34727c=Y[_0x3ef45e(
 <section class="panel" id="zone-manager"><div class="tag">Zone progression · extension by Shilen</div><h2>Zone Manager</h2><p class="hint">Mark zones cleared to advance progression for the selected class. All 12 zone identifiers are confirmed. You can also clear the prerequisites to reach a chosen zone. Export everything using the single button at the bottom.</p>
 <div class="am-row"><label>Class <select id="zm-class"></select></label><span id="zm-summary"></span></div>
 <p class="zm-unavailable" id="zm-unavailable" hidden></p><div class="zm-grid" id="zm-grid"></div>
-<div class="zm-actions"><button class="btn" id="zm-restore">Restore imported zone records</button><label class="zm-target-label">Progress to <select id="zm-target"></select></label><button class="btn" id="zm-through">Clear prerequisites</button><button class="btn" id="zm-complete-all">Mark all 12 cleared</button><span id="zm-status">Import a save to edit progression.</span></div>
+<div class="zm-actions"><button class="btn" id="zm-restore">Restore imported zone records</button><label class="zm-target-label">Progress to <select id="zm-target"></select></label><button class="btn" id="zm-through">Clear prerequisites</button><button class="btn" id="zm-complete-all">Mark all 13 cleared</button><span id="zm-status">Import a save to edit progression.</span></div>
 <p class="am-note">Clearing the preceding zones is the in-game-tested way to advance. “Clear prerequisites” marks every zone before your selected destination as cleared, without marking the destination itself. Bulk progression is experimental; classes without an in-game zone record are disabled to protect saves. Make a fresh game backup first.</p></section>
 
 <style id="as-achievement-manager-style">
@@ -297,7 +297,7 @@ function P(_0x2f5ea5,_0x3df7ec){const _0x3ef45e=_0x17f9ca,_0x34727c=Y[_0x3ef45e(
 <script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
-const zoneCatalog=[['Elwynn Forest','elwynn',true],['Duskwood','duskwood',true],['Warsong Gulch','wsg',true],["Un’Goro Crater",'ungoro',true],['Arathi Basin','ab',true],['Feralas','feralas',true],['Gurubashi Arena','arena',true],['Scarlet Monastery','sm',true],['Alterac Valley','av',true],['Blackrock Mountain','brm',true],["Gates of Ahn’Qiraj","aq",true],['Naxxramas','naxx',true]];
+const zoneCatalog=[['Elwynn Forest','elwynn',true],['Duskwood','duskwood',true],['Warsong Gulch','wsg',true],["Un’Goro Crater",'ungoro',true],['Arathi Basin','ab',true],['Feralas','feralas',true],['Gurubashi Arena','arena',true],['Scarlet Monastery','sm',true],['Alterac Valley','av',true],['Blackrock Mountain','brm',true],['Scholomance', 'scholomance', true],["Gates of Ahn’Qiraj","aq",true],['Naxxramas','naxx',true]];
 let zoneDraft=null,zoneImport=null;
 function zoneRecord(lines,kind,cls){const line=lines.find(l=>l.startsWith(kind+'|'+cls+'|'));return line?new Set(line.split('|').slice(2).join('|').split(',').filter(Boolean)):new Set()}
 function zoneSync(){if(!loaded())return false;if(zoneImport!==Y.plain){zoneImport=Y.plain;zoneDraft={};}return true}
@@ -317,7 +317,7 @@ function renderZones(){
     if(el.checked)st.beat.add(key);else st.beat.delete(key);
     renderZones();$('zm-status').textContent='Zone draft updated. Export all changes below.';
   });
-  $('zm-summary').textContent=active?(initialized?st.beat.size+' of 12 zones cleared':'Zones not initialized'):'Open a save to begin';
+  $('zm-summary').textContent=active?(initialized?st.beat.size+' of 13 zones cleared':'Zones not initialized'):'Open a save to begin';
   if(active&&!initialized)$('zm-status').textContent='Zone editing disabled for this class until the game initializes its progression.';
 }
 function sameSet(a,b){return a.size===b.size&&[...a].every(k=>b.has(k))}
@@ -368,19 +368,35 @@ function verifyZones(lines){
 
 const classes={1:'Warrior',2:'Paladin',3:'Hunter',4:'Rogue',5:'Priest',7:'Shaman',8:'Mage',9:'Warlock',11:'Druid'};
 const slots=['Head','Shoulder','Chest','Waist','Legs','Feet','Wrist','Hands','Main Hand','Off Hand'];
-const rarities=['Common','Uncommon','Rare','Epic','PvP','Legendary'];
-const colors=['#c7c7c7','#49e64e','#54aaff','#bf75f7','#d889f7','#ffb32c'];
-const zones=['Elwynn Forest / Duskwood','Warsong Gulch / Un’Goro','Arathi Basin / Feralas','Gurubashi Arena / Scarlet Monastery','Alterac Valley / Blackrock Mountain','Gates of Ahn’Qiraj / Naxxramas'];
+// 1. Precise tier mapping matching the save file's 109070 Scholomance headpiece
+const rarityTiers = [
+  { name: 'Common',    idIndex: 0, color: '#c7c7c7', zone: 'Elwynn Forest / Duskwood' },
+  { name: 'Uncommon',  idIndex: 1, color: '#49e64e', zone: 'Warsong Gulch / Un’Goro' },
+  { name: 'Rare',      idIndex: 2, color: '#54aaff', zone: 'Arathi Basin / Feralas' },
+  { name: 'Epic',      idIndex: 3, color: '#bf75f7', zone: 'Gurubashi Arena / Scarlet Monastery' },
+  { name: 'PvP',       idIndex: 5, color: '#d889f7', zone: 'Alterac Valley / Blackrock Mountain' },
+  { name: 'Tier 0.5',  idIndex: 7, color: '#a335ee', zone: 'Scholomance' },
+  { name: 'Legendary', idIndex: 4, color: '#ffb32c', zone: 'Gates of Ahn’Qiraj / Naxxramas' }
+];
+
+const rarities = rarityTiers.map(t => t.name);
+const colors   = rarityTiers.map(t => t.color);
+const zones    = rarityTiers.map(t => t.zone);
+
 const shamanRare=['Earthfury Helm','Earthfury Spaulders','Earthfury Breastplate','Earthfury Belt','Earthfury Legguards','Earthfury Greaves','Earthfury Bracers','Earthfury Gauntlets','Earthfury Hammer','Totem Shield'];
 const shamanCommon={6:'Primal Bracers',7:'Primal Gauntlets',9:'Round Buckler'};
 const zcid=$('zm-class');Object.entries(classes).forEach(([id,name])=>zcid.add(new Option(name+' (class '+id+')',id)));zcid.value='5';zcid.onchange=renderZones;$('zm-restore').onclick=()=>{if(!loaded())return;zoneDraft={};renderZones();$('zm-status').textContent='Zone records restored to imported save.'};const target=$('zm-target');zoneCatalog.forEach(([name,key])=>target.add(new Option(name,key)));target.value='naxx';
 $('zm-through').onclick=()=>{const st=zoneState(zcid.value);if(!st||!hasZoneState(Y.plain.split(/\r?\n/),zcid.value))return;const index=zoneCatalog.findIndex(([,key])=>key===target.value);if(index<0)return;for(let i=0;i<index;i++)st.beat.add(zoneCatalog[i][1]);renderZones();$('zm-status').textContent='Cleared prerequisites for '+zoneCatalog[index][0]+'. Export and verify in game.'};
-$('zm-complete-all').onclick=()=>{const st=zoneState(zcid.value);if(!st||!hasZoneState(Y.plain.split(/\r?\n/),zcid.value))return;for(const [,key] of zoneCatalog)st.beat.add(key);renderZones();$('zm-status').textContent='All 12 zones queued as cleared. Export and verify in game.'};
+$('zm-complete-all').onclick=()=>{const st=zoneState(zcid.value);if(!st||!hasZoneState(Y.plain.split(/\r?\n/),zcid.value))return;for(const [,key] of zoneCatalog)st.beat.add(key);renderZones();$('zm-status').textContent='All 13 zones queued as cleared. Export and verify in game.'};
 const cid=$('am-class');Object.entries(classes).forEach(([id,name])=>cid.add(new Option(name+' (class '+id+')',id)));cid.value='7';
-const validSlots=c=>(String(c)==='4'||String(c)==='7')?10:9;
-const id=(c,s,r)=>String(100000+Number(c)*1000+s*100+r*10);
-const ids=c=>Array.from({length:6},(_,r)=>Array.from({length:validSlots(c)},(_,s)=>id(c,s,r))).flat();
-const all=()=>Object.keys(classes).flatMap(ids);
+
+const validSlots = c => (String(c) === '4' || String(c) === '7') ? 10 : 9;
+const id = (c, s, rIdx) => String(100000 + Number(c) * 1000 + s * 100 + rIdx * 10);
+const ids = c => rarityTiers.flatMap(t => 
+  Array.from({ length: validSlots(c) }, (_, s) => id(c, s, t.idIndex))
+);
+const all = () => Object.keys(classes).flatMap(ids);
+
 const status=t=>$('am-status').textContent=t;
 function loaded(){return typeof Y!=='undefined'&&Array.isArray(Y.lines)&&Y.lines.length>0&&typeof Y.plain==='string'&&Y.plain.length>0}
 let equipmentDraft=null, importPlain=null, perkResetDraft=null;
@@ -407,15 +423,54 @@ function items(){if(!syncImport())return new Set();return new Set(equipmentDraft
 function write(set){if(!syncImport())return;equipmentDraft=new Set(set);render()}
 function name(c,r,s){if(c==='7'&&r===2)return shamanRare[s];if(c==='7'&&r===0&&Object.prototype.hasOwnProperty.call(shamanCommon,s))return shamanCommon[s];return rarities[r]+' '+slots[s]}
 function verified(c,r,s){return c==='7'&&(r===2||(r===0&&Object.prototype.hasOwnProperty.call(shamanCommon,s)))}
-function render(){let c=cid.value,have=items(),cl=ids(c),count=cl.filter(x=>have.has(x)).length;
-$('am-count').textContent=count+' / '+cl.length+' collected · '+all().filter(x=>have.has(x)).length+' / 498 total';
-$('am-class-all').textContent='Unlock all '+cl.length+' for '+classes[c];
-let html='<table><thead><tr><th>Rarity / Zone</th>'+slots.slice(0,validSlots(c)).map(s=>'<th>'+s+'</th>').join('')+'</tr></thead><tbody>';
-for(let r=0;r<6;r++){html+='<tr><td class="am-rarity" style="color:'+colors[r]+'">'+rarities[r]+'<small>'+zones[r]+'</small></td>';
-for(let s=0;s<validSlots(c);s++){let key=id(c,s,r),on=have.has(key),n=name(c,r,s);html+='<td><button type="button" class="am-gear '+(on?'on ':'')+(!verified(c,r,s)?'predicted':'')+'" data-id="'+key+'" title="'+n+' · '+key+'" '+(!loaded()?'disabled':'')+'><strong>'+n+'</strong><small>'+(on?'✓ Collected':'○ Missing')+'</small></button></td>'}html+='</tr>'}html+='</tbody></table>';
-$('am-matrix').innerHTML=html;
-$('am-matrix').querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{let set=items(),key=b.dataset.id;if(set.has(key))set.delete(key);else set.add(key);write(set);status('Equipment draft updated. Export the combined save when finished.')});
-$('am-detail').textContent=classes[c]+' · '+cl.length+' available pieces ('+validSlots(c)+' slots × 6 rarities). ID = 100000 + class×1000 + slot×100 + rarity×10. Shaman rare names verified; others may be placeholders.';
+// Render UI
+function render() {
+  let c = cid.value,
+      have = items(),
+      cl = ids(c),
+      count = cl.filter(x => have.has(x)).length;
+
+  $('am-count').textContent = count + ' / ' + cl.length + ' collected · ' + all().filter(x => have.has(x)).length + ' / 581 total';
+  $('am-class-all').textContent = 'Unlock all ' + cl.length + ' for ' + classes[c];
+
+  let html = '<table><thead><tr><th>Rarity / Zone</th>' +
+             slots.slice(0, validSlots(c)).map(s => '<th>' + s + '</th>').join('') +
+             '</tr></thead><tbody>';
+
+  rarityTiers.forEach(tier => {
+    html += '<tr><td class="am-rarity" style="color:' + tier.color + '">' +
+            tier.name + '<small>' + tier.zone + '</small></td>';
+
+    for (let s = 0; s < validSlots(c); s++) {
+      let key = id(c, s, tier.idIndex),
+          on = have.has(key),
+          n = tier.name + ' ' + slots[s];
+
+      if (c === '7' && tier.idIndex === 2) n = shamanRare[s];
+      else if (c === '7' && tier.idIndex === 0 && Object.prototype.hasOwnProperty.call(shamanCommon, s)) n = shamanCommon[s];
+
+      html += '<td><button type="button" class="am-gear ' + (on ? 'on ' : '') +
+              '" data-id="' + key + '" title="' + n + ' · ' + key + '" ' +
+              (!loaded() ? 'disabled' : '') + '><strong>' + n +
+              '</strong><small>' + (on ? '✓ Collected' : '○ Missing') +
+              '</small></button></td>';
+    }
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  $('am-matrix').innerHTML = html;
+
+  $('am-matrix').querySelectorAll('[data-id]').forEach(b => b.onclick = () => {
+    let set = items(), key = b.dataset.id;
+    if (set.has(key)) set.delete(key);
+    else set.add(key);
+    write(set);
+    status('Equipment draft updated. Export the combined save when finished.');
+  });
+
+  $('am-detail').textContent = classes[c] + ' · ' + cl.length + ' available pieces (' +
+                               validSlots(c) + ' slots × 7 rarities).';
 }
 cid.onchange=render;
 $('am-class-all').onclick=()=>{if(!loaded())return status('Open a save first');write(new Set([...items(),...ids(cid.value)]));status('Unlocked all '+ids(cid.value).length+' items for '+classes[cid.value]+'.')};
@@ -560,7 +615,7 @@ $('am-export').onclick=()=>{if(!loaded())return status('Open a save first');try{
   const {result,count,classes}=mergeAndVerify(),sealed=G(result);
   if(h(sealed)!==result)throw Error('Encryption round-trip failed');
   download(sealed,'AzerothSurvivors_Editor_v1.5.6.sav');
-  status('✓ Verified export: '+classes+' talent records (XP + ranks preserved), '+count+'/498 equipment IDs.');
+  status('✓ Verified export: '+classes+' talent records (XP + ranks preserved), '+count+'/581 equipment IDs.');
   document.dispatchEvent(new CustomEvent('as15:export',{detail:{success:true}}));
 }catch(err){status('Export blocked: '+err.message);console.error(err);document.dispatchEvent(new CustomEvent('as15:export',{detail:{success:false,message:err.message}}));}};
 $('am-backup').onclick=()=>{if(!loaded())return status('Open a save first');download(window.__armoryImportedRaw||G(Y.plain),'AzerothSurvivors_UNTOUCHED_Backup.sav')};
@@ -1035,7 +1090,7 @@ function syncStatus(){
   const pct=s.classTotal?Math.round(s.classCollected/s.classTotal*100):0;
   $('as15-eq-fill').style.width=pct+'%';$('as15-eq-pct').textContent=pct+'%';$('as15-eq-track').setAttribute('aria-valuenow',pct);
   const zoneChecks=[...$('zm-grid').querySelectorAll('input[data-zone]:checked')].length;
-  $('as15-zone-n').textContent=zoneChecks+' / 12';$('as15-zone-fill').style.width=(zoneChecks/12*100)+'%';$('as15-zone-track').setAttribute('aria-valuenow',zoneChecks);
+  $('as15-zone-n').textContent=zoneChecks+' / 13';$('as15-zone-fill').style.width=(zoneChecks/12*100)+'%';$('as15-zone-track').setAttribute('aria-valuenow',zoneChecks);
   const edited=s.areas.length>0,alreadyExported=s.fingerprint===lastSuccessfulExport;
   const dot=$('as15-status-dot'),title=$('as15-dock-title'),sub=$('as15-dock-sub'),chip=$('as15-dirty-chip');
   if(s.demo){title.textContent='Demo mode · example save';sub.textContent='Import a current .sav before editing your real progress';dot.dataset.tone='ready'}
@@ -1373,8 +1428,152 @@ setTimeout(()=>{scheduleGearFilter();syncStatus();},200);
   const statusText = $('ach-status');
   if (!grid || !tabsBar) return;
 
-  const CATALOG = JSON.parse(decodeURIComponent(escape(atob("W3siaWQiOiJ6b25lOmVsd3lubiIsIm5hbWUiOiJFbHd5bm4gRm9yZXN0IiwiY2F0IjoiWm9uZXMiLCJwdHMiOjEwLCJkZXNjIjoiRGVmZWF0IEVkd2luIFZhbkNsZWVmIGluIEVsd3lubiBGb3Jlc3Qgd2l0aCBhbnkgY2xhc3MuIn0seyJpZCI6InpvbmU6ZHVza3dvb2QiLCJuYW1lIjoiRHVza3dvb2QiLCJjYXQiOiJab25lcyIsInB0cyI6MTAsImRlc2MiOiJEZWZlYXQgTW9yYmVudCBGZWwgaW4gRHVza3dvb2Qgd2l0aCBhbnkgY2xhc3MuIn0seyJpZCI6InpvbmU6d3NnIiwibmFtZSI6IldhcnNvbmcgR3VsY2giLCJjYXQiOiJab25lcyIsInB0cyI6MTAsImRlc2MiOiJEZWZlYXQgTG9yZCBLYXp6YWsgaW4gV2Fyc29uZyBHdWxjaCB3aXRoIGFueSBjbGFzcy4ifSx7ImlkIjoiem9uZTp1bmdvcm8iLCJuYW1lIjoiVW4nR29ybyBDcmF0ZXIiLCJjYXQiOiJab25lcyIsInB0cyI6MTAsImRlc2MiOiJEZWZlYXQgS2luZyBNb3NoIGluIFVuJ0dvcm8gQ3JhdGVyIHdpdGggYW55IGNsYXNzLiJ9LHsiaWQiOiJ6b25lOmFiIiwibmFtZSI6IkFyYXRoaSBCYXNpbiIsImNhdCI6IlpvbmVzIiwicHRzIjoxMCwiZGVzYyI6IkRlZmVhdCBMb3JkIEFpZGVuIFBlcmVub2xkZSBpbiBBcmF0aGkgQmFzaW4gd2l0aCBhbnkgY2xhc3MuIn0seyJpZCI6InpvbmU6ZmVyYWxhcyIsIm5hbWUiOiJGZXJhbGFzIiwiY2F0IjoiWm9uZXMiLCJwdHMiOjE1LCJkZXNjIjoiRGVmZWF0IEtpbmcgR29yZG9rIGluIEZlcmFsYXMgd2l0aCBhbnkgY2xhc3MuIn0seyJpZCI6InpvbmU6YXJlbmEiLCJuYW1lIjoiR3VydWJhc2hpIEFyZW5hIiwiY2F0IjoiWm9uZXMiLCJwdHMiOjE1LCJkZXNjIjoiRGVmZWF0IEhha2thciB0aGUgU291bGZsYXllciBpbiBHdXJ1YmFzaGkgQXJlbmEgd2l0aCBhbnkgY2xhc3MuIn0seyJpZCI6InpvbmU6c20iLCJuYW1lIjoiU2NhcmxldCBNb25hc3RlcnkiLCJjYXQiOiJab25lcyIsInB0cyI6MTUsImRlc2MiOiJEZWZlYXQgSGlnaCBJbnF1aXNpdG9yIFdoaXRlbWFuZSBpbiBTY2FybGV0IE1vbmFzdGVyeSB3aXRoIGFueSBjbGFzcy4ifSx7ImlkIjoiem9uZTphdiIsIm5hbWUiOiJBbHRlcmFjIFZhbGxleSIsImNhdCI6IlpvbmVzIiwicHRzIjoxNSwiZGVzYyI6IkRlZmVhdCBBenVyZWdvcyBpbiBBbHRlcmFjIFZhbGxleSB3aXRoIGFueSBjbGFzcy4ifSx7ImlkIjoiem9uZTpicm0iLCJuYW1lIjoiQmxhY2tyb2NrIE1vdW50YWluIiwiY2F0IjoiWm9uZXMiLCJwdHMiOjIwLCJkZXNjIjoiRGVmZWF0IE5lZmFyaWFuIGluIEJsYWNrcm9jayBNb3VudGFpbiB3aXRoIGFueSBjbGFzcy4ifSx7ImlkIjoiem9uZTphcSIsIm5hbWUiOiJHYXRlcyBvZiBBaG4nUWlyYWoiLCJjYXQiOiJab25lcyIsInB0cyI6MjUsImRlc2MiOiJEZWZlYXQgQydUaHVuIGluIEdhdGVzIG9mIEFobidRaXJhaiB3aXRoIGFueSBjbGFzcy4ifSx7ImlkIjoiem9uZTpuYXh4IiwibmFtZSI6Ik5heHhyYW1hcyIsImNhdCI6IlpvbmVzIiwicHRzIjozMCwiZGVzYyI6IkRlZmVhdCBLZWwnVGh1emFkIGluIE5heHhyYW1hcyB3aXRoIGFueSBjbGFzcy4ifSx7ImlkIjoiY2hhbXA6ZWx3eW5uIiwibmFtZSI6IkNoYW1waW9uIG9mIEVsd3lubiBGb3Jlc3QiLCJjYXQiOiJab25lcyIsInB0cyI6MjUsInJlcUFsbCI6ImVsd3lubiIsImRlc2MiOiJEZWZlYXQgRWR3aW4gVmFuQ2xlZWYgaW4gRWx3eW5uIEZvcmVzdCB3aXRoIGFsbCBuaW5lIGNsYXNzZXMuIn0seyJpZCI6ImNoYW1wOmR1c2t3b29kIiwibmFtZSI6IkNoYW1waW9uIG9mIER1c2t3b29kIiwiY2F0IjoiWm9uZXMiLCJwdHMiOjI1LCJyZXFBbGwiOiJkdXNrd29vZCIsImRlc2MiOiJEZWZlYXQgTW9yYmVudCBGZWwgaW4gRHVza3dvb2Qgd2l0aCBhbGwgbmluZSBjbGFzc2VzLiJ9LHsiaWQiOiJjaGFtcDp3c2ciLCJuYW1lIjoiQ2hhbXBpb24gb2YgV2Fyc29uZyBHdWxjaCIsImNhdCI6IlpvbmVzIiwicHRzIjoyNSwicmVxQWxsIjoid3NnIiwiZGVzYyI6IkRlZmVhdCBMb3JkIEthenphayBpbiBXYXJzb25nIEd1bGNoIHdpdGggYWxsIG5pbmUgY2xhc3Nlcy4ifSx7ImlkIjoiY2hhbXA6dW5nb3JvIiwibmFtZSI6IkNoYW1waW9uIG9mIFVuJ0dvcm8gQ3JhdGVyIiwiY2F0IjoiWm9uZXMiLCJwdHMiOjI1LCJyZXFBbGwiOiJ1bmdvcm8iLCJkZXNjIjoiRGVmZWF0IEtpbmcgTW9zaCBpbiBVbidHb3JvIENyYXRlciB3aXRoIGFsbCBuaW5lIGNsYXNzZXMuIn0seyJpZCI6ImNoYW1wOmFiIiwibmFtZSI6IkNoYW1waW9uIG9mIEFyYXRoaSBCYXNpbiIsImNhdCI6IlpvbmVzIiwicHRzIjoyNSwicmVxQWxsIjoiYWIiLCJkZXNjIjoiRGVmZWF0IExvcmQgQWlkZW4gUGVyZW5vbGRlIGluIEFyYXRoaSBCYXNpbiB3aXRoIGFsbCBuaW5lIGNsYXNzZXMuIn0seyJpZCI6ImNoYW1wOmZlcmFsYXMiLCJuYW1lIjoiQ2hhbXBpb24gb2YgRmVyYWxhcyIsImNhdCI6IlpvbmVzIiwicHRzIjoyNSwicmVxQWxsIjoiZmVyYWxhcyIsImRlc2MiOiJEZWZlYXQgS2luZyBHb3Jkb2sgaW4gRmVyYWxhcyB3aXRoIGFsbCBuaW5lIGNsYXNzZXMuIn0seyJpZCI6ImNoYW1wOmFyZW5hIiwibmFtZSI6IkNoYW1waW9uIG9mIEd1cnViYXNoaSBBcmVuYSIsImNhdCI6IlpvbmVzIiwicHRzIjoyNSwicmVxQWxsIjoiYXJlbmEiLCJkZXNjIjoiRGVmZWF0IEhha2thciB0aGUgU291bGZsYXllciBpbiBHdXJ1YmFzaGkgQXJlbmEgd2l0aCBhbGwgbmluZSBjbGFzc2VzLiJ9LHsiaWQiOiJjaGFtcDpzbSIsIm5hbWUiOiJDaGFtcGlvbiBvZiBTY2FybGV0IE1vbmFzdGVyeSIsImNhdCI6IlpvbmVzIiwicHRzIjoyNSwicmVxQWxsIjoic20iLCJkZXNjIjoiRGVmZWF0IEhpZ2ggSW5xdWlzaXRvciBXaGl0ZW1hbmUgaW4gU2NhcmxldCBNb25hc3Rlcnkgd2l0aCBhbGwgbmluZSBjbGFzc2VzLiJ9LHsiaWQiOiJjaGFtcDphdiIsIm5hbWUiOiJDaGFtcGlvbiBvZiBBbHRlcmFjIFZhbGxleSIsImNhdCI6IlpvbmVzIiwicHRzIjoyNSwicmVxQWxsIjoiYXYiLCJkZXNjIjoiRGVmZWF0IEF6dXJlZ29zIGluIEFsdGVyYWMgVmFsbGV5IHdpdGggYWxsIG5pbmUgY2xhc3Nlcy4ifSx7ImlkIjoiY2hhbXA6YnJtIiwibmFtZSI6IkNoYW1waW9uIG9mIEJsYWNrcm9jayBNb3VudGFpbiIsImNhdCI6IlpvbmVzIiwicHRzIjoyNSwicmVxQWxsIjoiYnJtIiwiZGVzYyI6IkRlZmVhdCBOZWZhcmlhbiBpbiBCbGFja3JvY2sgTW91bnRhaW4gd2l0aCBhbGwgbmluZSBjbGFzc2VzLiJ9LHsiaWQiOiJjaGFtcDphcSIsIm5hbWUiOiJDaGFtcGlvbiBvZiBHYXRlcyBvZiBBaG4nUWlyYWoiLCJjYXQiOiJab25lcyIsInB0cyI6MjUsInJlcUFsbCI6ImFxIiwiZGVzYyI6IkRlZmVhdCBDJ1RodW4gaW4gR2F0ZXMgb2YgQWhuJ1FpcmFqIHdpdGggYWxsIG5pbmUgY2xhc3Nlcy4ifSx7ImlkIjoiY2hhbXA6bmF4eCIsIm5hbWUiOiJDaGFtcGlvbiBvZiBOYXh4cmFtYXMiLCJjYXQiOiJab25lcyIsInB0cyI6MjUsInJlcUFsbCI6Im5heHgiLCJkZXNjIjoiRGVmZWF0IEtlbCdUaHV6YWQgaW4gTmF4eHJhbWFzIHdpdGggYWxsIG5pbmUgY2xhc3Nlcy4ifSx7ImlkIjoiY2xhc3M6d2FycmlvciIsIm5hbWUiOiJXYXJyaW9yIFZpY3RvcmlvdXMiLCJjYXQiOiJDbGFzc2VzIiwicHRzIjoxMCwiZGVzYyI6IldpbiBhIHJ1biB3aXRoIGEgV2Fycmlvci4ifSx7ImlkIjoiY2xhc3M6cGFsYWRpbiIsIm5hbWUiOiJQYWxhZGluIFZpY3RvcmlvdXMiLCJjYXQiOiJDbGFzc2VzIiwicHRzIjoxMCwiZGVzYyI6IldpbiBhIHJ1biB3aXRoIGEgUGFsYWRpbi4ifSx7ImlkIjoiY2xhc3M6aHVudGVyIiwibmFtZSI6Ikh1bnRlciBWaWN0b3Jpb3VzIiwiY2F0IjoiQ2xhc3NlcyIsInB0cyI6MTAsImRlc2MiOiJXaW4gYSBydW4gd2l0aCBhIEh1bnRlci4ifSx7ImlkIjoiY2xhc3M6cm9ndWUiLCJuYW1lIjoiUm9ndWUgVmljdG9yaW91cyIsImNhdCI6IkNsYXNzZXMiLCJwdHMiOjEwLCJkZXNjIjoiV2luIGEgcnVuIHdpdGggYSBSb2d1ZS4ifSx7ImlkIjoiY2xhc3M6cHJpZXN0IiwibmFtZSI6IlByaWVzdCBWaWN0b3Jpb3VzIiwiY2F0IjoiQ2xhc3NlcyIsInB0cyI6MTAsImRlc2MiOiJXaW4gYSBydW4gd2l0aCBhIFByaWVzdC4ifSx7ImlkIjoiY2xhc3M6c2hhbWFuIiwibmFtZSI6IlNoYW1hbiBWaWN0b3Jpb3VzIiwiY2F0IjoiQ2xhc3NlcyIsInB0cyI6MTAsImRlc2MiOiJXaW4gYSBydW4gd2l0aCBhIFNoYW1hbi4ifSx7ImlkIjoiY2xhc3M6bWFnZSIsIm5hbWUiOiJNYWdlIFZpY3RvcmlvdXMiLCJjYXQiOiJDbGFzc2VzIiwicHRzIjoxMCwiZGVzYyI6IldpbiBhIHJ1biB3aXRoIGEgTWFnZS4ifSx7ImlkIjoiY2xhc3M6d2FybG9jayIsIm5hbWUiOiJXYXJsb2NrIFZpY3RvcmlvdXMiLCJjYXQiOiJDbGFzc2VzIiwicHRzIjoxMCwiZGVzYyI6IldpbiBhIHJ1biB3aXRoIGEgV2FybG9jay4ifSx7ImlkIjoiY2xhc3M6ZHJ1aWQiLCJuYW1lIjoiRHJ1aWQgVmljdG9yaW91cyIsImNhdCI6IkNsYXNzZXMiLCJwdHMiOjEwLCJkZXNjIjoiV2luIGEgcnVuIHdpdGggYSBEcnVpZC4ifSx7ImlkIjoiYXE6d2FycmlvciIsImV4dHJhS2V5cyI6WyJzY2FyYWI6d2FycmlvciIsInNjYXJhYjoxIiwiYXE6MSJdLCJuYW1lIjoiV2FycmlvciBvZiB0aGUgU2NhcmFiIFdhbGwiLCJjYXQiOiJDbGFzc2VzIiwicHRzIjoyNSwicmVxIjp7ImNscyI6IjEiLCJ6b25lIjoiYXEiLCJsYWJlbCI6IkdhdGVzIG9mIEFobidRaXJhaiAoV2FycmlvcikifSwiZGVzYyI6IkRlZmVhdCBDJ1RodW4gYXQgR2F0ZXMgb2YgQWhuJ1FpcmFqIHdpdGggYSBXYXJyaW9yLiJ9LHsiaWQiOiJhcTpwYWxhZGluIiwiZXh0cmFLZXlzIjpbInNjYXJhYjpwYWxhZGluIiwic2NhcmFiOjIiLCJhcToyIl0sIm5hbWUiOiJQYWxhZGluIG9mIHRoZSBTY2FyYWIgV2FsbCIsImNhdCI6IkNsYXNzZXMiLCJwdHMiOjI1LCJyZXEiOnsiY2xzIjoiMiIsInpvbmUiOiJhcSIsImxhYmVsIjoiR2F0ZXMgb2YgQWhuJ1FpcmFqIChQYWxhZGluKSJ9LCJkZXNjIjoiRGVmZWF0IEMnVGh1biBhdCBHYXRlcyBvZiBBaG4nUWlyYWogd2l0aCBhIFBhbGFkaW4uIn0seyJpZCI6ImFxOmh1bnRlciIsImV4dHJhS2V5cyI6WyJzY2FyYWI6aHVudGVyIiwic2NhcmFiOjMiLCJhcTozIl0sIm5hbWUiOiJIdW50ZXIgb2YgdGhlIFNjYXJhYiBXYWxsIiwiY2F0IjoiQ2xhc3NlcyIsInB0cyI6MjUsInJlcSI6eyJjbHMiOiIzIiwiem9uZSI6ImFxIiwibGFiZWwiOiJHYXRlcyBvZiBBaG4nUWlyYWogKEh1bnRlcikifSwiZGVzYyI6IkRlZmVhdCBDJ1RodW4gYXQgR2F0ZXMgb2YgQWhuJ1FpcmFqIHdpdGggYSBIdW50ZXIuIn0seyJpZCI6ImFxOnJvZ3VlIiwiZXh0cmFLZXlzIjpbInNjYXJhYjpyb2d1ZSIsInNjYXJhYjo0IiwiYXE6NCJdLCJuYW1lIjoiUm9ndWUgb2YgdGhlIFNjYXJhYiBXYWxsIiwiY2F0IjoiQ2xhc3NlcyIsInB0cyI6MjUsInJlcSI6eyJjbHMiOiI0Iiwiem9uZSI6ImFxIiwibGFiZWwiOiJHYXRlcyBvZiBBaG4nUWlyYWogKFJvZ3VlKSJ9LCJkZXNjIjoiRGVmZWF0IEMnVGh1biBhdCBHYXRlcyBvZiBBaG4nUWlyYWogd2l0aCBhIFJvZ3VlLiJ9LHsiaWQiOiJhcTpwcmllc3QiLCJleHRyYUtleXMiOlsic2NhcmFiOnByaWVzdCIsInNjYXJhYjo1IiwiYXE6NSJdLCJuYW1lIjoiUHJpZXN0IG9mIHRoZSBTY2FyYWIgV2FsbCIsImNhdCI6IkNsYXNzZXMiLCJwdHMiOjI1LCJyZXEiOnsiY2xzIjoiNSIsInpvbmUiOiJhcSIsImxhYmVsIjoiR2F0ZXMgb2YgQWhuJ1FpcmFqIChQcmllc3QpIn0sImRlc2MiOiJEZWZlYXQgQydUaHVuIGF0IEdhdGVzIG9mIEFobidRaXJhaiB3aXRoIGEgUHJpZXN0LiJ9LHsiaWQiOiJhcTpzaGFtYW4iLCJleHRyYUtleXMiOlsic2NhcmFiOnNoYW1hbiIsInNjYXJhYjo3IiwiYXE6NyJdLCJuYW1lIjoiU2hhbWFuIG9mIHRoZSBTY2FyYWIgV2FsbCIsImNhdCI6IkNsYXNzZXMiLCJwdHMiOjI1LCJyZXEiOnsiY2xzIjoiNyIsInpvbmUiOiJhcSIsImxhYmVsIjoiR2F0ZXMgb2YgQWhuJ1FpcmFqIChTaGFtYW4pIn0sImRlc2MiOiJEZWZlYXQgQydUaHVuIGF0IEdhdGVzIG9mIEFobidRaXJhaiB3aXRoIGEgU2hhbWFuLiJ9LHsiaWQiOiJhcTptYWdlIiwiZXh0cmFLZXlzIjpbInNjYXJhYjptYWdlIiwic2NhcmFiOjgiLCJhcTo4Il0sIm5hbWUiOiJNYWdlIG9mIHRoZSBTY2FyYWIgV2FsbCIsImNhdCI6IkNsYXNzZXMiLCJwdHMiOjI1LCJyZXEiOnsiY2xzIjoiOCIsInpvbmUiOiJhcSIsImxhYmVsIjoiR2F0ZXMgb2YgQWhuJ1FpcmFqIChNYWdlKSJ9LCJkZXNjIjoiRGVmZWF0IEMnVGh1biBhdCBHYXRlcyBvZiBBaG4nUWlyYWogd2l0aCBhIE1hZ2UuIn0seyJpZCI6ImFxOndhcmxvY2siLCJleHRyYUtleXMiOlsic2NhcmFiOndhcmxvY2siLCJzY2FyYWI6OSIsImFxOjkiXSwibmFtZSI6IldhcmxvY2sgb2YgdGhlIFNjYXJhYiBXYWxsIiwiY2F0IjoiQ2xhc3NlcyIsInB0cyI6MjUsInJlcSI6eyJjbHMiOiI5Iiwiem9uZSI6ImFxIiwibGFiZWwiOiJHYXRlcyBvZiBBaG4nUWlyYWogKFdhcmxvY2spIn0sImRlc2MiOiJEZWZlYXQgQydUaHVuIGF0IEdhdGVzIG9mIEFobidRaXJhaiB3aXRoIGEgV2FybG9jay4ifSx7ImlkIjoiYXE6ZHJ1aWQiLCJleHRyYUtleXMiOlsic2NhcmFiOmRydWlkIiwic2NhcmFiOjExIiwiYXE6MTEiXSwibmFtZSI6IkRydWlkIG9mIHRoZSBTY2FyYWIgV2FsbCIsImNhdCI6IkNsYXNzZXMiLCJwdHMiOjI1LCJyZXEiOnsiY2xzIjoiMTEiLCJ6b25lIjoiYXEiLCJsYWJlbCI6IkdhdGVzIG9mIEFobidRaXJhaiAoRHJ1aWQpIn0sImRlc2MiOiJEZWZlYXQgQydUaHVuIGF0IEdhdGVzIG9mIEFobidRaXJhaiB3aXRoIGEgRHJ1aWQuIn0seyJpZCI6InRhbGVudHM6MSIsIm5hbWUiOiJGdWxseSBUYWxlbnRlZCIsImNhdCI6IkNsYXNzZXMiLCJwdHMiOjI1LCJkZXNjIjoiRWFybiBhbGwgNTEgdGFsZW50IHBvaW50cyB3aXRoIG9uZSBjbGFzcy4ifSx7ImlkIjoidGFsZW50czphbGwiLCJuYW1lIjoiTWFzdGVyIG9mIEFsbCIsImNhdCI6IkNsYXNzZXMiLCJwdHMiOjUwLCJkZXNjIjoiRWFybiBhbGwgNTEgdGFsZW50IHBvaW50cyB3aXRoIGV2ZXJ5IGNsYXNzLiJ9LHsiaWQiOiJwaWVjZXM6MjUiLCJuYW1lIjoiQ29sbGVjdG9yIiwiY2F0IjoiQ29sbGVjdGlvbiIsInB0cyI6MTAsImRlc2MiOiJDb2xsZWN0IDI1IHBpZWNlcyBvZiBnZWFyLCBvZiBhbnkgY2xhc3MuIn0seyJpZCI6InBpZWNlczoxMDAiLCJuYW1lIjoiSG9hcmRlciIsImNhdCI6IkNvbGxlY3Rpb24iLCJwdHMiOjEwLCJkZXNjIjoiQ29sbGVjdCAxMDAgcGllY2VzIG9mIGdlYXIsIG9mIGFueSBjbGFzcy4ifSx7ImlkIjoicGllY2VzOjI1MCIsIm5hbWUiOiJDdXJhdG9yIiwiY2F0IjoiQ29sbGVjdGlvbiIsInB0cyI6MjUsImRlc2MiOiJDb2xsZWN0IDI1MCBwaWVjZXMgb2YgZ2Vhciwgb2YgYW55IGNsYXNzLiJ9LHsiaWQiOiJwaWVjZXM6YWxsIiwibmFtZSI6IlRoZSBXaG9sZSBBcm1vcnkiLCJjYXQiOiJDb2xsZWN0aW9uIiwicHRzIjo1MCwiZGVzYyI6IkNvbGxlY3QgZXZlcnkgcGllY2Ugb2YgZ2VhciBvZiBldmVyeSBjbGFzcy4ifSx7ImlkIjoibGVnZW5kYXJ5Om9uZSIsIm5hbWUiOiJMZWdlbmRhcnkiLCJjYXQiOiJDb2xsZWN0aW9uIiwicHRzIjoyNSwiZGVzYyI6IkNvbGxlY3QgZXZlcnkgbGVnZW5kYXJ5IHBpZWNlIG9mIG9uZSBjbGFzcy4ifSx7ImlkIjoiY29kZXg6aGFsZiIsIm5hbWUiOiJKZXdlbGVyJ3MgRXllIiwiY2F0IjoiQ29sbGVjdGlvbiIsInB0cyI6MTAsImRlc2MiOiJTZWUgaGFsZiBvZiB0aGUgY29kZXgncyByaW5ncywgdHJpbmtldHMgYW5kIGFtdWxldHMuIn0seyJpZCI6ImNvZGV4OmFsbCIsIm5hbWUiOiJFdmVyeSBCYXVibGUiLCJjYXQiOiJDb2xsZWN0aW9uIiwicHRzIjoyNSwiZGVzYyI6IlNlZSBldmVyeSByaW5nLCB0cmlua2V0IGFuZCBhbXVsZXQgaW4gdGhlIGNvZGV4LiJ9LHsiaWQiOiJzdGFyczoxIiwibmFtZSI6IlBvbGlzaGVkIiwiY2F0IjoiQ29sbGVjdGlvbiIsInB0cyI6MTAsImRlc2MiOiJVcGdyYWRlIGEgcGllY2Ugb2YgZ2VhciB0byAxIHN0YXIuIn0seyJpZCI6InN0YXJzOjMiLCJuYW1lIjoiSG9uZWQiLCJjYXQiOiJDb2xsZWN0aW9uIiwicHRzIjoxMCwiZGVzYyI6IlVwZ3JhZGUgYSBwaWVjZSBvZiBnZWFyIHRvIDMgc3RhcnMuIn0seyJpZCI6InNldGJvbnVzIiwibmFtZSI6Ik1hdGNoZWQiLCJjYXQiOiJDb2xsZWN0aW9uIiwicHRzIjoxMCwiZGVzYyI6Ik9wZW4gYSBzZXQgYm9udXM6IGZvdXIgYXJtb3IgcGllY2VzIG9mIG9uZSBzZXQgYXQgMSBzdGFyIG9yIG1vcmUuIn0seyJpZCI6InNoYXJlZF93aXNkb20iLCJuYW1lIjoiU2hhcmVkIFdpc2RvbSIsImNhdCI6IkNvbGxlY3Rpb24iLCJwdHMiOjI1LCJkZXNjIjoiSGF2ZSBvbmUgc2V0J3MgZWlnaHQgYXJtb3IgcGllY2VzIGF0IDEgc3RhciBvciBtb3JlIG9uIGV2ZXJ5IGNsYXNzLiJ9LHsiaWQiOiJzZXQ4IiwibmFtZSI6IlN1aXRlZCBVcCIsImNhdCI6IkNvbGxlY3Rpb24iLCJwdHMiOjEwLCJkZXNjIjoiT3BlbiBhbiA4LXBpZWNlIHNldCBib251czogb25lIHNldCdzIGVpZ2h0IGFybW9yIHBpZWNlcyBhdCAzIHN0YXJzIG9yIG1vcmUuIn0seyJpZCI6IndhcmRyb2JlOmFsbCIsIm5hbWUiOiJXYXJkcm9iZSIsImNhdCI6IkNvbGxlY3Rpb24iLCJwdHMiOjI1LCJkZXNjIjoiT3BlbiB0aGUgOC1waWVjZSBib251cyBvZiBhbGwgc2l4IHNldHMgd2l0aCBvbmUgY2xhc3MuIn0seyJpZCI6ImFybW9yeTpsZWdlbmRzIiwibmFtZSI6IkFybW9yeSBvZiBMZWdlbmRzIiwiY2F0IjoiQ29sbGVjdGlvbiIsInB0cyI6NTAsImRlc2MiOiJPcGVuIHRoZSBsZWdlbmRhcnkgc2V0J3MgOC1waWVjZSBib251cyB3aXRoIGV2ZXJ5IGNsYXNzLiJ9LHsiaWQiOiJmZWF0Omh1bWJsZSIsIm5hbWUiOiJIdW1ibGUgQmVnaW5uaW5ncyIsImNhdCI6IkZlYXRzIiwicHRzIjoyNSwiZGVzYyI6IkJlYXQgTmF4eHJhbWFzIHdlYXJpbmcgYSBjb21tb24gc2V0J3MgOC1waWVjZSBib251cy4ifSx7ImlkIjoiZW5kbGVzczpib3NzZXMzIiwibmFtZSI6Ik92ZXJ0aW1lIChCb3NzZXMpIiwiY2F0IjoiRmVhdHMiLCJwdHMiOjEwLCJkZXNjIjoiU2xheSAzIGJvc3NlcyBpbiBlbmRsZXNzIGluIG9uZSBydW4uIn0seyJpZCI6ImVuZGxlc3M6Ym9zc2VzNiIsIm5hbWUiOiJOZXZlciBFbmRpbmciLCJjYXQiOiJGZWF0cyIsInB0cyI6MjUsImRlc2MiOiJTbGF5IDYgYm9zc2VzIGluIGVuZGxlc3MgaW4gb25lIHJ1bi4ifSx7ImlkIjoiZmVhdDpoYXphcmQiLCJuYW1lIjoiSGF6YXJkIFBheSIsImNhdCI6IkZlYXRzIiwicHRzIjoyNSwiZGVzYyI6IkVhcm4gMTAwIG1hcmtzIGluIG9uZSBydW4uIn0seyJpZCI6ImZlYXQ6ZGFuZ2VyIiwibmFtZSI6IkRhbmdlciBNb25leSIsImNhdCI6IkZlYXRzIiwicHRzIjo1MCwiZGVzYyI6IkVhcm4gNTAgbWFya3MgZnJvbSBvbmUgYm9zcy4ifSx7ImlkIjoiZmVhdDpraWxsczI1MDAiLCJuYW1lIjoiU2xhdWdodGVyaG91c2UiLCJjYXQiOiJGZWF0cyIsInB0cyI6MTAsImRlc2MiOiJTbGF5IDIsNTAwIGVuZW1pZXMgaW4gb25lIHJ1bi4ifSx7ImlkIjoiZmVhdDpraWxsczYwMDAiLCJuYW1lIjoiQ2FybmFnZSIsImNhdCI6IkZlYXRzIiwicHRzIjoyNSwiZGVzYyI6IlNsYXkgNiwwMDAgZW5lbWllcyBpbiBvbmUgcnVuLiJ9LHsiaWQiOiJmZWF0OmxhaXJzIiwibmFtZSI6IkxhaXIgQnJlYWtlciIsImNhdCI6IkZlYXRzIiwicHRzIjoyNSwiZGVzYyI6IlNsYXkgZm91ciBndWFyZGlhbnMgYmVmb3JlIDg6MDAgaW4gb25lIHJ1bi4ifSx7ImlkIjoiZW5kbGVzczpzdXJ2aXZlMjUiLCJuYW1lIjoiT3ZlcnRpbWUgKFN1cnZpdmUpIiwiY2F0IjoiRmVhdHMiLCJwdHMiOjEwLCJkZXNjIjoiU3Vydml2ZSB0byAyNTowMCBpbiBlbmRsZXNzIG1vZGUuIn0seyJpZCI6ImVuZGxlc3M6c3Vydml2ZTMwIiwibmFtZSI6IlVuZW5kaW5nIiwiY2F0IjoiRmVhdHMiLCJwdHMiOjI1LCJkZXNjIjoiU3Vydml2ZSB0byAzMDowMCBpbiBlbmRsZXNzIG1vZGUuIn0seyJpZCI6ImVuZGxlc3M6c3Vydml2ZTQwIiwibmFtZSI6IkRlYXRobGVzcyBIb3VyIiwiY2F0IjoiRmVhdHMiLCJwdHMiOjUwLCJkZXNjIjoiU3Vydml2ZSB0byA0MDowMCBpbiBlbmRsZXNzIG1vZGUuIn0seyJpZCI6ImZlYXQ6YmFyZSIsIm5hbWUiOiJCYXJlIEtudWNrbGVzIiwiY2F0IjoiRmVhdHMiLCJwdHMiOjI1LCJkZXNjIjoiV2luIGEgcnVuIHdlYXJpbmcgbm8gZ2Vhci4ifSx7ImlkIjoiZmVhdDp0aHJpZnR5IiwibmFtZSI6IlRocmlmdHkiLCJjYXQiOiJGZWF0cyIsInB0cyI6MjUsImRlc2MiOiJXaW4gYSBydW4gd2l0aG91dCBidXlpbmcgYSBjYWNoZS4ifSx7ImlkIjoiZmVhdDpvZGRzIiwibmFtZSI6IkFnYWluc3QgdGhlIE9kZHMiLCJjYXQiOiJGZWF0cyIsInB0cyI6NTAsImRlc2MiOiJXaW4gYSBydW4gb24gSGVyb2ljIElJSSBvciBoYXJkZXIuIn0seyJpZCI6ImZlYXQ6bm91IiwiZXh0cmFLZXlzIjpbImZlYXQ6c2FwcGhpcm9uIiwiZmVhdDpmcm9zdGJvbHQiXSwibmFtZSI6Im5vIHUiLCJjYXQiOiJGZWF0cyIsInB0cyI6MjUsImRlc2MiOiJTbGF5IFNhcHBoaXJvbiB3aXRoIGEgRnJvc3Rib2x0IGFzIHRoZSBraWxsaW5nIGJsb3cuIn0seyJpZCI6ImZlYXQ6c3BpbiIsImV4dHJhS2V5cyI6WyJmZWF0Omhlcm9kIiwiZmVhdDp3aGlybHdpbmQiLCJmZWF0OnNwaW5fdG9fd2luIl0sIm5hbWUiOiJTcGluIHRvIFdpbiIsImNhdCI6IkZlYXRzIiwicHRzIjoyNSwiZGVzYyI6IkRlZmVhdCBIZXJvZCB3aXRoIFdoaXJsd2luZC4ifSx7ImlkIjoiZmVhdDpoYWtrYXIiLCJleHRyYUtleXMiOlsiZmVhdDpkcmFpbmxpZmUiLCJmZWF0Omhha2thcl9kcmFpbiJdLCJuYW1lIjoiU3VjayBJdCwgSGFra2FyISIsImNhdCI6IkZlYXRzIiwicHRzIjoyNSwiZGVzYyI6IkRlZmVhdCBIYWtrYXIgd2l0aCBEcmFpbiBMaWZlLiJ9LHsiaWQiOiJmZWF0OmJhZGRyYWdvbiIsImV4dHJhS2V5cyI6WyJmZWF0Om5lZmFyaWFuIiwiZmVhdDpuZWZhcmlhbl9wZXQiXSwibmFtZSI6IkJhZCBEcmFnb24hIiwiY2F0IjoiRmVhdHMiLCJwdHMiOjI1LCJkZXNjIjoiSGF2ZSBhIHN1bW1vbmVkIHBldCBkZWxpdmVyIHRoZSBraWxsaW5nIGJsb3cgdG8gTmVmYXJpYW4uIn0seyJpZCI6ImZlYXQ6Y2FyYW1iYSIsImV4dHJhS2V5cyI6WyJmZWF0OmN0aHVuIiwiZmVhdDpjdGh1bl9ub2RtZyJdLCJuYW1lIjoiRXllIENhcmFtYmEhIiwiY2F0IjoiRmVhdHMiLCJwdHMiOjUwLCJkZXNjIjoiRGVmZWF0IEMnVGh1biB3aXRob3V0IHRha2luZyBhbnkgZGFtYWdlIGZyb20gaGltLiJ9LHsiaWQiOiJmZWF0OmZpcmVkIiwiZXh0cmFLZXlzIjpbImZlYXQ6dmFuY2xlZWYiLCJmZWF0OnZhbmNsZWVmX2ZpcmUiXSwibmFtZSI6IllvdSdyZSBGaXJlZCIsImNhdCI6IkZlYXRzIiwicHRzIjoxMCwiZGVzYyI6IkRlZmVhdCBFZHdpbiBWYW5DbGVlZiB3aXRoIGEgRmlyZSBzcGVsbC4ifSx7ImlkIjoiZmVhdDpzdGl0Y2hlcyIsImV4dHJhS2V5cyI6WyJmZWF0OnN0aXRjaGVzX2JsZWVkIl0sIm5hbWUiOiJTdGl0Y2hlcyBHZXQgU3RpdGNoZXMiLCJjYXQiOiJGZWF0cyIsInB0cyI6MTAsImRlc2MiOiJEZWZlYXQgU3RpdGNoZXMgd2l0aCBhIEJsZWVkIGVmZmVjdC4ifSx7ImlkIjoiZmVhdDpzYXRhbmthenphayIsImV4dHJhS2V5cyI6WyJmZWF0OmthenphayIsImZlYXQ6a2F6emFrX2hvbHkiXSwibmFtZSI6Ik5vdCBUb2RheSwgU2F0YW4iLCJjYXQiOiJGZWF0cyIsInB0cyI6MjUsImRlc2MiOiJEZWZlYXQgTG9yZCBLYXp6YWsgd2l0aCBIb2x5IGRhbWFnZS4ifSx7ImlkIjoiZmVhdDptb3NocGV0IiwiZXh0cmFLZXlzIjpbImZlYXQ6bW9zaCIsImZlYXQ6bW9zaF9wZXQiXSwibmFtZSI6IkNsZXZlciBHaXJsIiwiY2F0IjoiRmVhdHMiLCJwdHMiOjI1LCJkZXNjIjoiSGF2ZSBhIHN1bW1vbmVkIHBldCBkZWxpdmVyIHRoZSBraWxsaW5nIGJsb3cgdG8gS2luZyBNb3NoLiJ9LHsiaWQiOiJmZWF0Omtvdm9yayIsImV4dHJhS2V5cyI6WyJmZWF0Omtvdm9ya19tZWxlZSJdLCJuYW1lIjoiQm9uayB0aGUgQm9ua2VyIiwiY2F0IjoiRmVhdHMiLCJwdHMiOjEwLCJkZXNjIjoiRGVmZWF0IEtvdm9yayB3aXRoIGEgbWVsZWUgYXR0YWNrLiJ9LHsiaWQiOiJmZWF0OmdvcmRva3JlZmxlY3QiLCJleHRyYUtleXMiOlsiZmVhdDpnb3Jkb2siLCJmZWF0OmdvcmRva19yZWZsZWN0Il0sIm5hbWUiOiJTdG9wIEhpdHRpbmcgWW91cnNlbGYiLCJjYXQiOiJGZWF0cyIsInB0cyI6MjUsImRlc2MiOiJEZWZlYXQgS2luZyBHb3Jkb2sgd2l0aCByZWZsZWN0ZWQgZGFtYWdlIGZyb20gU2hhbWFuJ3MgTGlnaHRuaW5nIFNoaWVsZCwgRHJ1aWQncyBUaG9ybnMsIG9yIFBhbGFkaW4ncyBIb2x5IFNoaWVsZC4ifSx7ImlkIjoiZmVhdDpibHVlc2NyZWVuIiwiZXh0cmFLZXlzIjpbImZlYXQ6YXp1cmVnb3MiLCJmZWF0OmF6dXJlZ29zX2FyY2FuZSJdLCJuYW1lIjoiQmx1ZSBTY3JlZW4gb2YgRGVhdGgiLCJjYXQiOiJGZWF0cyIsInB0cyI6MjUsImRlc2MiOiJEZWZlYXQgQXp1cmVnb3Mgd2l0aCBhbiBBcmNhbmUgc3BlbGwuIn0seyJpZCI6ImNvdW50Om1hcmtzMTAwIiwibmFtZSI6Ik1hcmtlZCIsImNhdCI6IkxpZmV0aW1lIiwicHRzIjoxMCwiZGVzYyI6IkVhcm4gMTAwIG1hcmtzLiJ9LHsiaWQiOiJjb3VudDptYXJrczFrIiwibmFtZSI6IldlbGwgUGFpZCIsImNhdCI6IkxpZmV0aW1lIiwicHRzIjoyNSwiZGVzYyI6IkVhcm4gMSwwMDAgbWFya3MuIn0seyJpZCI6ImNvdW50Om1hcmtzMTBrIiwibmFtZSI6IlF1YXJ0ZXJtYXN0ZXIiLCJjYXQiOiJMaWZldGltZSIsInB0cyI6NTAsImRlc2MiOiJFYXJuIDEwLDAwMCBtYXJrcy4ifSx7ImlkIjoiY291bnQ6a2lsbHMxMGsiLCJuYW1lIjoiRXh0ZXJtaW5hdG9yIiwiY2F0IjoiTGlmZXRpbWUiLCJwdHMiOjEwLCJkZXNjIjoiU2xheSAxMCwwMDAgZW5lbWllcy4ifSx7ImlkIjoiY291bnQ6a2lsbHMxMDBrIiwibmFtZSI6IlNjb3VyZ2Ugb2YgQXplcm90aCIsImNhdCI6IkxpZmV0aW1lIiwicHRzIjoyNSwiZGVzYyI6IlNsYXkgMTAwLDAwMCBlbmVtaWVzLiJ9LHsiaWQiOiJjb3VudDpraWxsczFtIiwibmFtZSI6IkEgTWlsbGlvbiBEZWFkIiwiY2F0IjoiTGlmZXRpbWUiLCJwdHMiOjUwLCJkZXNjIjoiU2xheSAxLDAwMCwwMDAgZW5lbWllcy4ifSx7ImlkIjoiY291bnQ6Z29sZDVrIiwibmFtZSI6IlBvY2tldCBDaGFuZ2UiLCJjYXQiOiJMaWZldGltZSIsInB0cyI6MTAsImRlc2MiOiJDb2xsZWN0IDUsMDAwIGdvbGQuIn0seyJpZCI6ImNvdW50OmdvbGQ1MGsiLCJuYW1lIjoiVHJlYXN1cmUgSHVudGVyIiwiY2F0IjoiTGlmZXRpbWUiLCJwdHMiOjI1LCJkZXNjIjoiQ29sbGVjdCA1MCwwMDAgZ29sZC4ifSx7ImlkIjoiY291bnQ6Z3VhcmRpYW5zMTAwIiwibmFtZSI6IkxhaXIgUmFpZGVyIiwiY2F0IjoiTGlmZXRpbWUiLCJwdHMiOjEwLCJkZXNjIjoiU2xheSAxMDAgZ3VhcmRpYW5zLiJ9LHsiaWQiOiJjb3VudDpndWFyZGlhbnM1MDAiLCJuYW1lIjoiV2FyZGVuJ3MgQmFuZSIsImNhdCI6IkxpZmV0aW1lIiwicHRzIjoyNSwiZGVzYyI6IlNsYXkgNTAwIGd1YXJkaWFucy4ifSx7ImlkIjoiY291bnQ6Ym9zc2VzMTAwIiwibmFtZSI6IkJvc3MgSHVudGVyIiwiY2F0IjoiTGlmZXRpbWUiLCJwdHMiOjEwLCJkZXNjIjoiU2xheSAxMDAgYm9zc2VzLiJ9LHsiaWQiOiJjb3VudDpjYWNoZXMxMDAiLCJuYW1lIjoiQ2FjaGUgQ3JhY2tlciIsImNhdCI6IkxpZmV0aW1lIiwicHRzIjoxMCwiZGVzYyI6IkJ1eSAxMDAgY2FjaGVzLiJ9LHsiaWQiOiJjb3VudDpydW5zMTAiLCJuYW1lIjoiUmVndWxhciIsImNhdCI6IkxpZmV0aW1lIiwicHRzIjoxMCwiZGVzYyI6IlBsYXkgMTAgcnVucy4ifSx7ImlkIjoiY291bnQ6cnVuczEwMCIsIm5hbWUiOiJWZXRlcmFuIiwiY2F0IjoiTGlmZXRpbWUiLCJwdHMiOjEwLCJkZXNjIjoiUGxheSAxMDAgcnVucy4ifSx7ImlkIjoiY291bnQ6d2luczUwIiwibmFtZSI6IkNvbnF1ZXJvciIsImNhdCI6IkxpZmV0aW1lIiwicHRzIjoyNSwiZGVzYyI6IldpbiA1MCBydW5zLiJ9LHsiaWQiOiJjb29wOnRvZ2V0aGVyIiwibmFtZSI6IkJldHRlciBUb2dldGhlciIsImNhdCI6IkNvLW9wIiwicHRzIjoxMCwiZGVzYyI6IkNvbXBsZXRlIHlvdXIgZmlyc3Qgem9uZSB3aXRoIGF0IGxlYXN0IG9uZSBvdGhlciBwbGF5ZXIuIn0seyJpZCI6ImNvb3A6Zml2ZWtpbmQiLCJuYW1lIjoiRml2ZSBvZiBhIEtpbmQiLCJjYXQiOiJDby1vcCIsInB0cyI6MjUsImRlc2MiOiJDb21wbGV0ZSBhbnkgem9uZSBpbiBjby1vcCB3aXRoIGFsbCA1IHBsYXllcnMgdXNpbmcgdGhlIHNhbWUgY2xhc3MuIn0seyJpZCI6ImNvb3A6cGhvdG9zeW50aGVzaXMiLCJuYW1lIjoiUmVzdCBpbiBQaG90b3N5bnRoZXNpcyIsImNhdCI6IkNvLW9wIiwicHRzIjo1MCwiZGVzYyI6IkRlZmVhdCBLZWwnVGh1emFkIG9uIEhlcm9pYyBJSUkgaW4gY28tb3Agd2l0aCA1IERydWlkcywgYWxsIHRhbGVudGVkIGludG8gVHJhbnF1aWxpdHkuIFRyYW5xdWlsaXR5IG11c3QgZGVsaXZlciB0aGUga2lsbGluZyBibG93LiJ9LHsiaWQiOiJjb29wOmluc2FuZSIsIm5hbWUiOiJUaGUgSW5zYW5lIiwiY2F0IjoiQ28tb3AiLCJwdHMiOjUwLCJkZXNjIjoiU3Vydml2ZSBmb3IgNDAgbWludXRlcyBvciBsb25nZXIgaW4gTmF4eHJhbWFzIG9uIEhlcm9pYyBWIHdpdGggYXQgbGVhc3QgdHdvIG90aGVyIHBsYXllcnMuIn0seyJpZCI6ImNvb3A6bWF0Y2hpbmciLCJuYW1lIjoiTWF0Y2hpbmcgT3V0Zml0cyIsImNhdCI6IkNvLW9wIiwicHRzIjoyNSwiZGVzYyI6IldpbiBpbiBhIHBhcnR5IG9mIHRocmVlIG9yIG1vcmUsIGV2ZXJ5IGhlcm8gd2VhcmluZyB0aGUgc2FtZSBzZXQncyA4LXBpZWNlIGJvbnVzLiJ9LHsiaWQiOiJjb29wOnJhaWRuaWdodCIsIm5hbWUiOiJSYWlkIE5pZ2h0IiwiY2F0IjoiQ28tb3AiLCJwdHMiOjI1LCJkZXNjIjoiQmVhdCBIZXJvaWMgSUlJIG9yIGhhcmRlciBpbiBhIHBhcnR5IG9mIGZpdmUuIn0seyJpZCI6ImNvb3A6b2RkcyIsIm5hbWUiOiJBZ2FpbnN0IEFsbCBPZGRzIiwiY2F0IjoiQ28tb3AiLCJwdHMiOjUwLCJkZXNjIjoiQ29tcGxldGUgYW55IHpvbmUgb24gSGVyb2ljIElJSSBvciBoYXJkZXIgd2l0aCBhdCBsZWFzdCBvbmUgb3RoZXIgcGxheWVyLiJ9LHsiaWQiOiJjb29wOmJyb3RoZXJob29kIiwibmFtZSI6IlRoZSBCcm90aGVyaG9vZCBGYWxscyIsImNhdCI6IkNvLW9wIiwicHRzIjoyNSwiZGVzYyI6IkRlZmVhdCBFZHdpbiBWYW5DbGVlZiBpbiBjby1vcCB3aXRoIDUgcGxheWVycywgYWxsIHVzaW5nIGRpZmZlcmVudCBjbGFzc2VzLiJ9LHsiaWQiOiJjb29wOmJ1bXAiLCJuYW1lIjoiVGhpbmdzIFRoYXQgR28gQnVtcCBpbiB0aGUgTmlnaHQiLCJjYXQiOiJDby1vcCIsInB0cyI6MjUsImRlc2MiOiJDb21wbGV0ZSBEdXNrd29vZCB3aXRoIGF0IGxlYXN0IG9uZSBvdGhlciBwbGF5ZXIsIHdpdGhvdXQgYW55IHBsYXllciBkeWluZy4ifSx7ImlkIjoiY29vcDp0ZWFtIiwibmFtZSI6IkZvciB0aGUgVGVhbSIsImNhdCI6IkNvLW9wIiwicHRzIjoxMCwiZGVzYyI6IkNvbXBsZXRlIFdhcnNvbmcgR3VsY2ggYW5kIEFyYXRoaSBCYXNpbiwgZWFjaCB3aXRoIGF0IGxlYXN0IG9uZSBvdGhlciBwbGF5ZXIuIn0seyJpZCI6ImNvb3A6cGFjayIsIm5hbWUiOiJKdXJhc3NpYyBQYWNrIiwiY2F0IjoiQ28tb3AiLCJwdHMiOjI1LCJkZXNjIjoiQ29tcGxldGUgVW4nR29ybyBDcmF0ZXIgaW4gY28tb3Agd2l0aCA1IEh1bnRlcnMuIn0seyJpZCI6ImNvb3A6c21vb3RoaWUiLCJuYW1lIjoiSGFra2FyIFNtb290aGllIiwiY2F0IjoiQ28tb3AiLCJwdHMiOjUwLCJkZXNjIjoiRGVmZWF0IEhha2thciB3aXRoIDUgV2FycmlvcnMsIGFsbCB0YWxlbnRlZCBpbnRvIEJsYWRlc3Rvcm0uIFdoaXJsd2luZCBtdXN0IGRlbGl2ZXIgdGhlIGtpbGxpbmcgYmxvdy4ifSx7ImlkIjoiY29vcDpmcmFtZWRyb3BzIiwibmFtZSI6IkhvbHkgRnJhbWUgRHJvcHMiLCJjYXQiOiJDby1vcCIsInB0cyI6NTAsImRlc2MiOiJEZWZlYXQgSGlnaCBJbnF1aXNpdG9yIFdoaXRlbWFuZSBpbiBjby1vcCB3aXRoIDUgUGFsYWRpbnMsIGFsbCBoYXZpbmcgQ29uc2VjcmF0aW9uIGFzIHRoZWlyIGhpZ2hlc3QtcmFua2VkIHNwZWxsLiJ9LHsiaWQiOiJjb29wOmRyYWdvbnNsYXllcnMiLCJuYW1lIjoiRHJhZ29uc2xheWVycyIsImNhdCI6IkNvLW9wIiwicHRzIjoyNSwiZGVzYyI6IkRlZmVhdCBBenVyZWdvcyBhbmQgTmVmYXJpYW4sIGVhY2ggd2l0aCBhdCBsZWFzdCBvbmUgb3RoZXIgcGxheWVyLiJ9LHsiaWQiOiJjb29wOnVuYnJva2VuIiwibmFtZSI6IlVuYnJva2VuIENpcmNsZSIsImNhdCI6IkNvLW9wIiwicHRzIjo1MCwiZGVzYyI6IkNsZWFyIGFueSBIZXJvaWMgem9uZSBpbiBjby1vcCB3aXRob3V0IGEgc2luZ2xlIHBsYXllciB0YWtpbmcgbGV0aGFsIGRhbWFnZS4ifSx7ImlkIjoiY29vcDpzeW5lcmd5IiwibmFtZSI6IkNsYXNzIFN5bmVyZ3kiLCJjYXQiOiJDby1vcCIsInB0cyI6MjUsImRlc2MiOiJDbGVhciBhIHpvbmUgd2l0aCA1IGRpc3RpbmN0IGNsYXNzZXMuIn0seyJpZCI6ImNvb3A6c3BlZWRydW4iLCJuYW1lIjoiQmxpdHoiLCJjYXQiOiJDby1vcCIsInB0cyI6MjUsImRlc2MiOiJDbGVhciBhIHpvbmUgaW4gdW5kZXIgMTIgbWludXRlcyBpbiBjby1vcC4ifSx7ImlkIjoiaGVyb2ljOjEiLCJuYW1lIjoiSGVyb2ljIERlYnV0IiwiY2F0IjoiSGVyb2ljIiwicHRzIjoxMCwiZGVzYyI6IkJlYXQgSGVyb2ljIEkgaW4gYW55IHpvbmUuIn0seyJpZCI6Imhlcm9pYzpyZXNvbHZlIiwibmFtZSI6Ikhlcm9pYyBSZXNvbHZlIiwiY2F0IjoiSGVyb2ljIiwicHRzIjoyNSwiZGVzYyI6IkJlYXQgSGVyb2ljIElJSSBpbiBhbnkgem9uZS4ifSx7ImlkIjoiaGVyb2ljOmFsbHpvbmVzIiwibmFtZSI6Ikhlcm9pYyBBY3Jvc3MgQXplcm90aCIsImNhdCI6Ikhlcm9pYyIsInB0cyI6NTAsImRlc2MiOiJCZWF0IEhlcm9pYyBJSUkgaW4gZXZlcnkgem9uZSwgd2l0aCBhbnkgY2xhc3Nlcy4ifSx7ImlkIjoiaGVyb2ljOm5heHg1IiwibmFtZSI6IkNoYW1waW9uIG9mIE5heHhyYW1hcyAoSGVyb2ljKSIsImNhdCI6Ikhlcm9pYyIsInB0cyI6NTAsImRlc2MiOiJCZWF0IEhlcm9pYyBWIGluIE5heHhyYW1hcy4gT3BlbnMgdGhlIENydXNhZGVyIHdlYXBvbiBnbG93LiJ9LHsiaWQiOiJzdGFyczo0IiwibmFtZSI6IkJleW9uZCB0aGUgVmF1bHQiLCJjYXQiOiJIZXJvaWMiLCJwdHMiOjEwLCJkZXNjIjoiVXBncmFkZSBhIHBpZWNlIG9mIGdlYXIgdG8gNCBzdGFycy4ifSx7ImlkIjoic3RhcnM6NSIsIm5hbWUiOiJGaXZlIFN0YXJzIiwiY2F0IjoiSGVyb2ljIiwicHRzIjoyNSwiZGVzYyI6IlVwZ3JhZGUgYSBwaWVjZSBvZiBnZWFyIHRvIDUgc3RhcnMuIn0seyJpZCI6Imhlcm9pYzplbXBvd2VyZWQiLCJuYW1lIjoiRW1wb3dlcmVkIiwiY2F0IjoiSGVyb2ljIiwicHRzIjoyNSwiZGVzYyI6IkVtcG93ZXIgYW4gOC1waWVjZSBzZXQgYm9udXM6IG9uZSBzZXQncyBlaWdodCBhcm1vciBwaWVjZXMgYXQgNSBzdGFycy4ifSx7ImlkIjoiaGVyb2ljOnJhZGlhbnQiLCJuYW1lIjoiUmFkaWFudCBBcm1vcnkiLCJjYXQiOiJIZXJvaWMiLCJwdHMiOjUwLCJkZXNjIjoiRW1wb3dlciBhbiA4LXBpZWNlIHNldCBib251cyB3aXRoIGV2ZXJ5IGNsYXNzLiBPcGVucyB0aGUgRmllcnkgV2VhcG9uIGdsb3cuIn0seyJpZCI6Imhlcm9pYzp1bnBvbGlzaGVkIiwibmFtZSI6IlVucG9saXNoZWQiLCJjYXQiOiJIZXJvaWMiLCJwdHMiOjI1LCJkZXNjIjoiQmVhdCBIZXJvaWMgSUkgb3IgaGFyZGVyIHdpdGggbm8gcGllY2Ugb2YgZ2VhciBhYm92ZSAwIHN0YXJzLiJ9XQ=="))));
+  const CATALOG = [
+    // --- ZONES (24) ---
+    { id: 'zone:elwynn', name: 'Elwynn Forest', cat: 'Zones', pts: 10, desc: 'Defeat Edwin VanCleef in Elwynn Forest with any class.' },
+    { id: 'zone:duskwood', name: 'Duskwood', cat: 'Zones', pts: 10, desc: 'Defeat Morbent Fel in Duskwood with any class.' },
+    { id: 'zone:wsg', name: 'Warsong Gulch', cat: 'Zones', pts: 10, desc: 'Defeat Lord Kazzak in Warsong Gulch with any class.' },
+    { id: 'zone:ungoro', name: "Un'Goro Crater", cat: 'Zones', pts: 10, desc: 'Defeat King Mosh in Un\'Goro Crater with any class.' },
+    { id: 'zone:ab', name: 'Arathi Basin', cat: 'Zones', pts: 10, desc: 'Defeat Lord Aiden Perenolde in Arathi Basin with any class.' },
+    { id: 'zone:feralas', name: 'Feralas', cat: 'Zones', pts: 15, desc: 'Defeat King Gordok in Feralas with any class.' },
+    { id: 'zone:arena', name: 'Gurubashi Arena', cat: 'Zones', pts: 15, desc: 'Defeat Hakkar the Soulflayer in Gurubashi Arena with any class.' },
+    { id: 'zone:sm', name: 'Scarlet Monastery', cat: 'Zones', pts: 15, desc: 'Defeat High Inquisitor Whitemane in Scarlet Monastery with any class.' },
+    { id: 'zone:av', name: 'Alterac Valley', cat: 'Zones', pts: 15, desc: 'Defeat Azuregos in Alterac Valley with any class.' },
+    { id: 'zone:brm', name: 'Blackrock Mountain', cat: 'Zones', pts: 20, desc: 'Defeat Nefarian in Blackrock Mountain with any class.' },
+    { id: 'zone:aq', name: "Gates of Ahn'Qiraj", cat: 'Zones', pts: 25, desc: "Defeat C'Thun in Gates of Ahn'Qiraj with any class." },
+    { id: 'zone:naxx', name: 'Naxxramas', cat: 'Zones', pts: 30, desc: 'Defeat Kel\'Thuzad in Naxxramas with any class.' },
 
+    // Zones - Champion Clears (Requires that zone cleared on all 9 classes)
+    { id: 'champ:elwynn', name: 'Champion of Elwynn Forest', cat: 'Zones', pts: 25, reqAll: 'elwynn', desc: 'Defeat Edwin VanCleef in Elwynn Forest with all nine classes.' },
+    { id: 'champ:duskwood', name: 'Champion of Duskwood', cat: 'Zones', pts: 25, reqAll: 'duskwood', desc: 'Defeat Morbent Fel in Duskwood with all nine classes.' },
+    { id: 'champ:wsg', name: 'Champion of Warsong Gulch', cat: 'Zones', pts: 25, reqAll: 'wsg', desc: 'Defeat Lord Kazzak in Warsong Gulch with all nine classes.' },
+    { id: 'champ:ungoro', name: "Champion of Un'Goro Crater", cat: 'Zones', pts: 25, reqAll: 'ungoro', desc: 'Defeat King Mosh in Un\'Goro Crater with all nine classes.' },
+    { id: 'champ:ab', name: 'Champion of Arathi Basin', cat: 'Zones', pts: 25, reqAll: 'ab', desc: 'Defeat Lord Aiden Perenolde in Arathi Basin with all nine classes.' },
+    { id: 'champ:feralas', name: 'Champion of Feralas', cat: 'Zones', pts: 25, reqAll: 'feralas', desc: 'Defeat King Gordok in Feralas with all nine classes.' },
+    { id: 'champ:arena', name: 'Champion of Gurubashi Arena', cat: 'Zones', pts: 25, reqAll: 'arena', desc: 'Defeat Hakkar the Soulflayer in Gurubashi Arena with all nine classes.' },
+    { id: 'champ:sm', name: 'Champion of Scarlet Monastery', cat: 'Zones', pts: 25, reqAll: 'sm', desc: 'Defeat High Inquisitor Whitemane in Scarlet Monastery with all nine classes.' },
+    { id: 'champ:av', name: 'Champion of Alterac Valley', cat: 'Zones', pts: 25, reqAll: 'av', desc: 'Defeat Azuregos in Alterac Valley with all nine classes.' },
+    { id: 'champ:brm', name: 'Champion of Blackrock Mountain', cat: 'Zones', pts: 25, reqAll: 'brm', desc: 'Defeat Nefarian in Blackrock Mountain with all nine classes.' },
+    { id: 'champ:aq', name: "Champion of Gates of Ahn'Qiraj", cat: 'Zones', pts: 25, reqAll: 'aq', desc: "Defeat C'Thun in Gates of Ahn'Qiraj with all nine classes." },
+    { id: 'champ:naxx', name: 'Champion of Naxxramas', cat: 'Zones', pts: 25, reqAll: 'naxx', desc: 'Defeat Kel\'Thuzad in Naxxramas with all nine classes.' },
+
+    // --- CLASSES (20) ---
+    { id: 'class:warrior', name: 'Warrior Victorious', cat: 'Classes', pts: 10, desc: 'Win a run with a Warrior.' },
+    { id: 'class:paladin', name: 'Paladin Victorious', cat: 'Classes', pts: 10, desc: 'Win a run with a Paladin.' },
+    { id: 'class:hunter', name: 'Hunter Victorious', cat: 'Classes', pts: 10, desc: 'Win a run with a Hunter.' },
+    { id: 'class:rogue', name: 'Rogue Victorious', cat: 'Classes', pts: 10, desc: 'Win a run with a Rogue.' },
+    { id: 'class:priest', name: 'Priest Victorious', cat: 'Classes', pts: 10, desc: 'Win a run with a Priest.' },
+    { id: 'class:shaman', name: 'Shaman Victorious', cat: 'Classes', pts: 10, desc: 'Win a run with a Shaman.' },
+    { id: 'class:mage', name: 'Mage Victorious', cat: 'Classes', pts: 10, desc: 'Win a run with a Mage.' },
+    { id: 'class:warlock', name: 'Warlock Victorious', cat: 'Classes', pts: 10, desc: 'Win a run with a Warlock.' },
+    { id: 'class:druid', name: 'Druid Victorious', cat: 'Classes', pts: 10, desc: 'Win a run with a Druid.' },
+
+    // Classes - Scarab Wall (Requires C'Thun / Gates of Ahn'Qiraj 'aq' cleared on that specific class)
+    { id: 'aq:warrior', extraKeys: ['scarab:warrior', 'scarab:1', 'aq:1'], name: 'Warrior of the Scarab Wall', cat: 'Classes', pts: 25, req: { cls: '1', zone: 'aq', label: "Gates of Ahn'Qiraj (Warrior)" }, desc: "Defeat C'Thun at Gates of Ahn'Qiraj with a Warrior." },
+    { id: 'aq:paladin', extraKeys: ['scarab:paladin', 'scarab:2', 'aq:2'], name: 'Paladin of the Scarab Wall', cat: 'Classes', pts: 25, req: { cls: '2', zone: 'aq', label: "Gates of Ahn'Qiraj (Paladin)" }, desc: "Defeat C'Thun at Gates of Ahn'Qiraj with a Paladin." },
+    { id: 'aq:hunter', extraKeys: ['scarab:hunter', 'scarab:3', 'aq:3'], name: 'Hunter of the Scarab Wall', cat: 'Classes', pts: 25, req: { cls: '3', zone: 'aq', label: "Gates of Ahn'Qiraj (Hunter)" }, desc: "Defeat C'Thun at Gates of Ahn'Qiraj with a Hunter." },
+    { id: 'aq:rogue', extraKeys: ['scarab:rogue', 'scarab:4', 'aq:4'], name: 'Rogue of the Scarab Wall', cat: 'Classes', pts: 25, req: { cls: '4', zone: 'aq', label: "Gates of Ahn'Qiraj (Rogue)" }, desc: "Defeat C'Thun at Gates of Ahn'Qiraj with a Rogue." },
+    { id: 'aq:priest', extraKeys: ['scarab:priest', 'scarab:5', 'aq:5'], name: 'Priest of the Scarab Wall', cat: 'Classes', pts: 25, req: { cls: '5', zone: 'aq', label: "Gates of Ahn'Qiraj (Priest)" }, desc: "Defeat C'Thun at Gates of Ahn'Qiraj with a Priest." },
+    { id: 'aq:shaman', extraKeys: ['scarab:shaman', 'scarab:7', 'aq:7'], name: 'Shaman of the Scarab Wall', cat: 'Classes', pts: 25, req: { cls: '7', zone: 'aq', label: "Gates of Ahn'Qiraj (Shaman)" }, desc: "Defeat C'Thun at Gates of Ahn'Qiraj with a Shaman." },
+    { id: 'aq:mage', extraKeys: ['scarab:mage', 'scarab:8', 'aq:8'], name: 'Mage of the Scarab Wall', cat: 'Classes', pts: 25, req: { cls: '8', zone: 'aq', label: "Gates of Ahn'Qiraj (Mage)" }, desc: "Defeat C'Thun at Gates of Ahn'Qiraj with a Mage." },
+    { id: 'aq:warlock', extraKeys: ['scarab:warlock', 'scarab:9', 'aq:9'], name: 'Warlock of the Scarab Wall', cat: 'Classes', pts: 25, req: { cls: '9', zone: 'aq', label: "Gates of Ahn'Qiraj (Warlock)" }, desc: "Defeat C'Thun at Gates of Ahn'Qiraj with a Warlock." },
+    { id: 'aq:druid', extraKeys: ['scarab:druid', 'scarab:11', 'aq:11'], name: 'Druid of the Scarab Wall', cat: 'Classes', pts: 25, req: { cls: '11', zone: 'aq', label: "Gates of Ahn'Qiraj (Druid)" }, desc: "Defeat C'Thun at Gates of Ahn'Qiraj with a Druid." },
+
+    { id: 'talents:1', name: 'Fully Talented', cat: 'Classes', pts: 25, desc: 'Earn all 51 talent points with one class.' },
+    { id: 'talents:all', name: 'Master of All', cat: 'Classes', pts: 50, desc: 'Earn all 51 talent points with every class.' },
+
+    // --- COLLECTION (14) ---
+    { id: 'pieces:25', name: 'Collector', cat: 'Collection', pts: 10, desc: 'Collect 25 pieces of gear, of any class.' },
+    { id: 'pieces:100', name: 'Hoarder', cat: 'Collection', pts: 10, desc: 'Collect 100 pieces of gear, of any class.' },
+    { id: 'pieces:250', name: 'Curator', cat: 'Collection', pts: 25, desc: 'Collect 250 pieces of gear, of any class.' },
+    { id: 'pieces:all', name: 'The Whole Armory', cat: 'Collection', pts: 50, desc: 'Collect every piece of gear of every class.' },
+    { id: 'legendary:one', name: 'Legendary', cat: 'Collection', pts: 25, desc: 'Collect every legendary piece of one class.' },
+    { id: 'codex:half', name: "Jeweler's Eye", cat: 'Collection', pts: 10, desc: "See half of the codex's rings, trinkets and amulets." },
+    { id: 'codex:all', name: 'Every Bauble', cat: 'Collection', pts: 25, desc: 'See every ring, trinket and amulet in the codex.' },
+    { id: 'stars:1', name: 'Polished', cat: 'Collection', pts: 10, desc: 'Upgrade a piece of gear to 1 star.' },
+    { id: 'stars:3', name: 'Honed', cat: 'Collection', pts: 10, desc: 'Upgrade a piece of gear to 3 stars.' },
+    { id: 'setbonus', name: 'Matched', cat: 'Collection', pts: 10, desc: "Open a set bonus: four armor pieces of one set at 1 star or more." },
+    { id: 'shared_wisdom', name: 'Shared Wisdom', cat: 'Collection', pts: 25, desc: "Have one set's eight armor pieces at 1 star or more on every class." },
+    { id: 'set8', name: 'Suited Up', cat: 'Collection', pts: 10, desc: "Open an 8-piece set bonus: one set's eight armor pieces at 3 stars or more." },
+    { id: 'wardrobe:all', name: 'Wardrobe', cat: 'Collection', pts: 25, desc: 'Open the 8-piece bonus of all six sets with one class.' },
+    { id: 'armory:legends', name: 'Armory of Legends', cat: 'Collection', pts: 50, desc: "Open the legendary set's 8-piece bonus with every class." },
+
+    // --- FEATS (26) ---
+    { id: 'feat:humble', extraKeys: ['feat:beginnings'], name: 'Humble Beginnings', cat: 'Feats', pts: 25, desc: "Beat Naxxramas wearing a common set's 8-piece bonus." },
+    { id: 'endless:bosses3', extraKeys: ['feat:bosses3', 'endless:3'], name: 'Overtime (Bosses)', cat: 'Feats', pts: 10, desc: 'Slay 3 bosses in endless in one run.' },
+    { id: 'endless:bosses6', extraKeys: ['feat:bosses6', 'endless:6'], name: 'Never Ending', cat: 'Feats', pts: 25, desc: 'Slay 6 bosses in endless in one run.' },
+    { id: 'feat:hazard', name: 'Hazard Pay', cat: 'Feats', pts: 25, desc: 'Earn 100 marks in one run.' },
+    { id: 'feat:danger', name: 'Danger Money', cat: 'Feats', pts: 50, desc: 'Earn 50 marks from one boss.' },
+    { id: 'feat:kills2500', name: 'Slaughterhouse', cat: 'Feats', pts: 10, desc: 'Slay 2,500 enemies in one run.' },
+    { id: 'feat:kills6000', name: 'Carnage', cat: 'Feats', pts: 25, desc: 'Slay 6,000 enemies in one run.' },
+    { id: 'feat:lairs', name: 'Lair Breaker', cat: 'Feats', pts: 25, desc: 'Slay four guardians before 8:00 in one run.' },
+    { id: 'feat:endless25', name: 'Overtime (Survive)', cat: 'Feats', pts: 10, desc: 'Survive to 25:00 in endless mode.' },
+    { id: 'feat:endless30', name: 'Unending', cat: 'Feats', pts: 25, desc: 'Survive to 30:00 in endless mode.' },
+    { id: 'feat:endless40', name: 'Deathless Hour', cat: 'Feats', pts: 50, desc: 'Survive to 40:00 in endless mode.' },
+    { id: 'feat:bare', name: 'Bare Knuckles', cat: 'Feats', pts: 25, desc: 'Win a run wearing no gear.' },
+    { id: 'feat:thrifty', name: 'Thrifty', cat: 'Feats', pts: 25, desc: 'Win a run without buying a cache.' },
+    { id: 'feat:odds', name: 'Against the Odds', cat: 'Feats', pts: 50, desc: 'Win a run on Heroic III or harder.' },
+    { id: 'feat:nou', extraKeys: ['feat:sapphiron', 'feat:frostbolt'], name: 'no u', cat: 'Feats', pts: 25, desc: 'Slay Sapphiron with a Frostbolt as the killing blow.' },
+    { id: 'feat:spin', extraKeys: ['feat:herod', 'feat:whirlwind', 'feat:spin_to_win'], name: 'Spin to Win', cat: 'Feats', pts: 25, desc: 'Defeat Herod with Whirlwind.' },
+    { id: 'feat:hakkar', extraKeys: ['feat:drainlife', 'feat:hakkar_drain'], name: 'Suck It, Hakkar!', cat: 'Feats', pts: 25, desc: 'Defeat Hakkar with Drain Life.' },
+    { id: 'feat:baddragon', extraKeys: ['feat:nefarian', 'feat:nefarian_pet'], name: 'Bad Dragon!', cat: 'Feats', pts: 25, desc: 'Have a summoned pet deliver the killing blow to Nefarian.' },
+    { id: 'feat:caramba', extraKeys: ['feat:cthun', 'feat:cthun_nodmg'], name: 'Eye Caramba!', cat: 'Feats', pts: 50, desc: "Defeat C'Thun without taking any damage from him." },
+    { id: 'feat:fired', extraKeys: ['feat:vancleef', 'feat:vancleef_fire'], name: "You're Fired", cat: 'Feats', pts: 10, desc: 'Defeat Edwin VanCleef with a Fire spell.' },
+    { id: 'feat:stitches', extraKeys: ['feat:stitches_bleed'], name: 'Stitches Get Stitches', cat: 'Feats', pts: 10, desc: 'Defeat Stitches with a Bleed effect.' },
+    { id: 'feat:satankazzak', extraKeys: ['feat:kazzak', 'feat:kazzak_holy'], name: 'Not Today, Satan', cat: 'Feats', pts: 25, desc: 'Defeat Lord Kazzak with Holy damage.' },
+    { id: 'feat:moshpet', extraKeys: ['feat:mosh', 'feat:mosh_pet'], name: 'Clever Girl', cat: 'Feats', pts: 25, desc: 'Have a summoned pet deliver the killing blow to King Mosh.' },
+    { id: 'feat:kovork', extraKeys: ['feat:kovork_melee'], name: 'Bonk the Bonker', cat: 'Feats', pts: 10, desc: 'Defeat Kovork with a melee attack.' },
+    { id: 'feat:gordokreflect', extraKeys: ['feat:gordok', 'feat:gordok_reflect'], name: 'Stop Hitting Yourself', cat: 'Feats', pts: 25, desc: "Defeat King Gordok with reflected damage from Shaman's Lightning Shield, Druid's Thorns, or Paladin's Holy Shield." },
+    { id: 'feat:bluescreen', extraKeys: ['feat:azuregos', 'feat:azuregos_arcane'], name: 'Blue Screen of Death', cat: 'Feats', pts: 25, desc: 'Defeat Azuregos with an Arcane spell.' },
+
+    // --- LIFETIME (15) ---
+    { id: 'count:marks100', name: 'Marked', cat: 'Lifetime', pts: 10, desc: 'Earn 100 marks.' },
+    { id: 'count:marks1k', name: 'Well Paid', cat: 'Lifetime', pts: 25, desc: 'Earn 1,000 marks.' },
+    { id: 'count:marks10k', name: 'Quartermaster', cat: 'Lifetime', pts: 50, desc: 'Earn 10,000 marks.' },
+    { id: 'count:kills10k', name: 'Exterminator', cat: 'Lifetime', pts: 10, desc: 'Slay 10,000 enemies.' },
+    { id: 'count:kills100k', name: 'Scourge of Azeroth', cat: 'Lifetime', pts: 25, desc: 'Slay 100,000 enemies.' },
+    { id: 'count:kills1m', name: 'A Million Dead', cat: 'Lifetime', pts: 50, desc: 'Slay 1,000,000 enemies.' },
+    { id: 'count:gold5k', name: 'Pocket Change', cat: 'Lifetime', pts: 10, desc: 'Collect 5,000 gold.' },
+    { id: 'count:gold50k', name: 'Treasure Hunter', cat: 'Lifetime', pts: 25, desc: 'Collect 50,000 gold.' },
+    { id: 'count:guardians100', name: 'Lair Raider', cat: 'Lifetime', pts: 10, desc: 'Slay 100 guardians.' },
+    { id: 'count:guardians500', name: "Warden's Bane", cat: 'Lifetime', pts: 25, desc: 'Slay 500 guardians.' },
+    { id: 'count:bosses100', name: 'Boss Hunter', cat: 'Lifetime', pts: 10, desc: 'Slay 100 bosses.' },
+    { id: 'count:caches100', name: 'Cache Cracker', cat: 'Lifetime', pts: 10, desc: 'Buy 100 caches.' },
+    { id: 'count:runs10', name: 'Regular', cat: 'Lifetime', pts: 10, desc: 'Play 10 runs.' },
+    { id: 'count:runs100', name: 'Veteran', cat: 'Lifetime', pts: 10, desc: 'Play 100 runs.' },
+    { id: 'count:wins50', name: 'Conqueror', cat: 'Lifetime', pts: 25, desc: 'Win 50 runs.' },
+
+    // --- CO-OP (17) ---
+    { id: 'coop:together', name: 'Better Together', cat: 'Co-op', pts: 10, desc: 'Complete your first zone with at least one other player.' },
+    { id: 'coop:fivekind', name: 'Five of a Kind', cat: 'Co-op', pts: 25, desc: 'Complete any zone in co-op with all 5 players using the same class.' },
+    { id: 'coop:photosynthesis', name: 'Rest in Photosynthesis', cat: 'Co-op', pts: 50, desc: "Defeat Kel'Thuzad on Heroic III in co-op with 5 Druids, all talented into Tranquility. Tranquility must deliver the killing blow." },
+    { id: 'coop:insane', name: 'The Insane', cat: 'Co-op', pts: 50, desc: 'Survive for 40 minutes or longer in Naxxramas on Heroic V with at least two other players.' },
+    { id: 'coop:matching', name: 'Matching Outfits', cat: 'Co-op', pts: 25, desc: "Win in a party of three or more, every hero wearing the same set's 8-piece bonus." },
+    { id: 'coop:raidnight', name: 'Raid Night', cat: 'Co-op', pts: 25, desc: 'Beat Heroic III or harder in a party of five.' },
+    { id: 'coop:odds', name: 'Against All Odds', cat: 'Co-op', pts: 50, desc: 'Complete any zone on Heroic III or harder with at least one other player.' },
+    { id: 'coop:brotherhood', name: 'The Brotherhood Falls', cat: 'Co-op', pts: 25, desc: 'Defeat Edwin VanCleef in co-op with 5 players, all using different classes.' },
+    { id: 'coop:bump', name: 'Things That Go Bump in the Night', cat: 'Co-op', pts: 25, desc: 'Complete Duskwood with at least one other player, without any player dying.' },
+    { id: 'coop:team', name: 'For the Team', cat: 'Co-op', pts: 10, desc: 'Complete Warsong Gulch and Arathi Basin, each with at least one other player.' },
+    { id: 'coop:pack', name: 'Jurassic Pack', cat: 'Co-op', pts: 25, desc: "Complete Un'Goro Crater in co-op with 5 Hunters." },
+    { id: 'coop:smoothie', name: 'Hakkar Smoothie', cat: 'Co-op', pts: 50, desc: 'Defeat Hakkar with 5 Warriors, all talented into Bladestorm. Whirlwind must deliver the killing blow.' },
+    { id: 'coop:framedrops', name: 'Holy Frame Drops', cat: 'Co-op', pts: 50, desc: 'Defeat High Inquisitor Whitemane in co-op with 5 Paladins, all having Consecration as their highest-ranked spell.' },
+    { id: 'coop:dragonslayers', name: 'Dragonslayers', cat: 'Co-op', pts: 25, desc: 'Defeat Azuregos and Nefarian, each with at least one other player.' },
+    { id: 'coop:unbroken', name: 'Unbroken Circle', cat: 'Co-op', pts: 50, desc: 'Clear any Heroic zone in co-op without a single player taking lethal damage.' },
+    { id: 'coop:synergy', name: 'Class Synergy', cat: 'Co-op', pts: 25, desc: 'Clear a zone with 5 distinct classes.' },
+    { id: 'coop:speedrun', name: 'Blitz', cat: 'Co-op', pts: 25, desc: 'Clear a zone in under 12 minutes in co-op.' },
+
+    // --- HEROIC (9) ---
+    { id: 'heroic:1', name: 'Heroic Debut', cat: 'Heroic', pts: 10, desc: 'Beat Heroic I in any zone.' },
+    { id: 'heroic:resolve', name: 'Heroic Resolve', cat: 'Heroic', pts: 25, desc: 'Beat Heroic III in any zone.' },
+    { id: 'heroic:allzones', name: 'Heroic Across Azeroth', cat: 'Heroic', pts: 50, desc: 'Beat Heroic III in every zone, with any classes.' },
+    { id: 'heroic:naxx5', name: 'Champion of Naxxramas (Heroic)', cat: 'Heroic', pts: 50, desc: 'Beat Heroic V in Naxxramas. Opens the Crusader weapon glow.' },
+    { id: 'stars:4', name: 'Beyond the Vault', cat: 'Heroic', pts: 10, desc: 'Upgrade a piece of gear to 4 stars.' },
+    { id: 'stars:5', name: 'Five Stars', cat: 'Heroic', pts: 25, desc: 'Upgrade a piece of gear to 5 stars.' },
+    { id: 'heroic:empowered', name: 'Empowered', cat: 'Heroic', pts: 25, desc: "Empower an 8-piece set bonus: one set's eight armor pieces at 5 stars." },
+    { id: 'heroic:radiant', name: 'Radiant Armory', cat: 'Heroic', pts: 50, desc: 'Empower an 8-piece set bonus with every class. Opens the Fiery Weapon glow.' },
+    { id: 'heroic:unpolished', name: 'Unpolished', cat: 'Heroic', pts: 25, desc: 'Beat Heroic II or harder with no piece of gear above 0 stars.' }
+  ];
+  
   const TABS = ['All', 'Zones', 'Classes', 'Collection', 'Feats', 'Lifetime', 'Co-op', 'Heroic'];
   const ALL_CLASS_IDS = ['1', '2', '3', '4', '5', '7', '8', '9', '11'];
   const CLASS_NAMES = { '1': 'Warrior', '2': 'Paladin', '3': 'Hunter', '4': 'Rogue', '5': 'Priest', '7': 'Shaman', '8': 'Mage', '9': 'Warlock', '11': 'Druid' };
@@ -1421,26 +1620,20 @@ setTimeout(()=>{scheduleGearFilter();syncStatus();},200);
   }
 
   function checkZoneCleared(clsId, zoneKey) {
-    // 1. If this class is currently displayed in the Zone Manager, check the live checkbox directly
     const currentZmClass = document.getElementById('zm-class')?.value || String(window.Y?.cur || '');
     if (String(clsId) === String(currentZmClass)) {
       const box = document.querySelector(`#zm-grid input[data-zone="${zoneKey}"]`);
       if (box) return box.checked;
     }
-
-    // 2. Check window.zoneState if exposed
     if (typeof window.zoneState === 'function') {
       const state = window.zoneState(clsId);
       if (state && state.beat) return state.beat.has(zoneKey);
     }
-
-    // 3. Check live Y.lines (draft) before falling back to Y.plain (imported)
     const source = (typeof Y !== 'undefined' && Array.isArray(Y.lines)) ? Y.lines : (Y?.plain ? Y.plain.split(/\r?\n/) : []);
     const match = source.find(l => l.startsWith(`beat|${clsId}|`));
     if (match) {
       return match.split('|').slice(2).join('|').split(',').includes(zoneKey);
     }
-
     return false;
   }
 
@@ -1468,8 +1661,6 @@ setTimeout(()=>{scheduleGearFilter();syncStatus();},200);
 
     const now = Math.floor(Date.now() / 1000);
     const timePairs = [];
-
-    // Ensure every key in achDraft has an entry in achatDraft
     sorted.forEach(id => {
       let ts = achatDraft.get(id);
       if (!ts) {
@@ -1478,7 +1669,6 @@ setTimeout(()=>{scheduleGearFilter();syncStatus();},200);
       }
       timePairs.push(`${id}=${ts}`);
     });
-
     const newAchatLine = 'achat|' + timePairs.join(',');
 
     const updateOrInsert = (prefix, content) => {
